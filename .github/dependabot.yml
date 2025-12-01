@@ -1,0 +1,26 @@
+version: 2
+updates:
+  # Monitor Docker base image
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    ignore:
+      # Block major version updates for Alpine (e.g., 3.18 -> 3.19)
+      # Allow only patch and minor updates within the same major version
+      - dependency-name: "alpine"
+        update-types: ["version-update:semver-major"]
+
+  # Monitor GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore"
+      include: "scope"
