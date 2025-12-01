@@ -21,12 +21,40 @@ docker run --rm ghcr.io/platformfuzz/slinktool-image:latest -V
 # Check version
 docker run --rm ghcr.io/platformfuzz/slinktool-image:latest -V
 
-# Query a SeedLink server
+# 1) Does the server answer?
 docker run --rm ghcr.io/platformfuzz/slinktool-image:latest \
-  -S your-server:18000 \
-  -s "NET_STA" \
-  -b 2024-01-01T00:00:00 \
-  -e 2024-01-01T01:00:00
+  -P rtserve.iris.washington.edu:18000
+
+# 2) List stations available
+docker run --rm ghcr.io/platformfuzz/slinktool-image:latest \
+  -L rtserve.iris.washington.edu:18000
+
+# 3) Stream a few seconds live (prints packet info)
+docker run --rm ghcr.io/platformfuzz/slinktool-image:latest \
+  -S IU_ANMO -s BHZ -nd 10 -p \
+  rtserve.iris.washington.edu:18000
+
+# 4) Pull last 15 minutes (time-window; SeedLink v3+)
+docker run --rm ghcr.io/platformfuzz/slinktool-image:latest \
+  -S IU_ANMO -s BHZ \
+  -tw $(date -u -d '15 minutes ago' +%Y,%m,%d,%H,%M,%S):$(date -u +%Y,%m,%d,%H,%M,%S) \
+  -p \
+  rtserve.iris.washington.edu:18000
+```
+
+### Alternative Public Servers
+
+If the default host is unreachable from your network, try other public servers:
+
+- `rtserve.resif.fr:18000` (EPOS-France) - seismology.resif.fr
+- `rtserver.ipgp.fr:18000` (GEOSCOPE/IPGP) - geoscope.ipgp.fr
+
+### Troubleshooting
+
+If you get "host not found/connection refused," it's usually DNS or outbound port 18000 blocked by a firewall. You can test reachability with:
+
+```bash
+nc -vz rtserve.iris.washington.edu 18000
 ```
 
 ## Build Locally
